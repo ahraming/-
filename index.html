@@ -1,54 +1,20 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>랜덤 발표 순서 추첨</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        #result {
-            font-size: 24px;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 18px;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <h1>랜덤 발표 순서 추첨</h1>
-    <p>버튼을 눌러 발표 순서를 확인하세요.</p>
-    <button onclick="pickRandom()">추첨하기</button>
-    <p id="result"></p>
-    <h3>이미 배정된 순서</h3>
-    <p id="assigned"></p>
-    
-    <script>
-        let remainingNumbers = [1,2,3,4,5,6,7,8,9,10];
-        let assignedNumbers = [];
+function createGitHubIssue(username, pickedNumber) {
+    const repoOwner = "ahraming";  // 본인의 GitHub 사용자명
+    const repoName = "-";  // 저장소 이름
 
-        function pickRandom() {
-            if (remainingNumbers.length === 0) {
-                document.getElementById("result").innerText = "모든 번호가 배정되었습니다.";
-                return;
-            }
-            
-            let randomIndex = Math.floor(Math.random() * remainingNumbers.length);
-            let pickedNumber = remainingNumbers[randomIndex];
-            remainingNumbers.splice(randomIndex, 1);
-            assignedNumbers.push(pickedNumber);
-
-            document.getElementById("result").innerText = "당신의 발표 순서: " + pickedNumber;
-            document.getElementById("assigned").innerText = "현재 배정된 순서: " + assignedNumbers.join(", ");
-        }
-    </script>
-</body>
-</html>
+    fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/issues`, {
+        method: "POST",
+        headers: {
+            "Authorization": `token ${process.env.GITHUB_TOKEN}`,  // GitHub Secrets에서 가져오기
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: `발표 순서 배정: ${username}`,
+            body: `${username} 님이 발표 순서 ${pickedNumber}을(를) 배정받았습니다.`
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log("Issue Created:", data))
+    .catch(error => console.error("Error creating issue:", error));
+}
